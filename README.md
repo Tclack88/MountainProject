@@ -16,7 +16,7 @@ Provide an automated, no-effort service to scrape GPS coordinates for all walls 
 3. Paste your API key there and change the default UL to whichever area you're interested in
 4. You'll be prompted to name the file (spaces will be replaced with underscores), just plug in your GPS device and drag and drop the newly created .gpx file there
 
-![mountain project climbs on the GPS][https://tclack88.github.io/blog/assets/mproj/gps_collage.png]
+![mountain project climbs on the GPS](https://tclack88.github.io/blog/assets/mproj/gps_collage.png)
 
 <hr>
 
@@ -46,6 +46,8 @@ for name in names:
 The csv files labeled "climber\_data" 1-6 represent my data scrapes, each took about an hour to gather, so thumbrule: 200 names/hour
 
 The features I've engineered are ok, I'm sure there are more
+
+<hr>
 
 # `mproj_analysis.ipynb`
 
