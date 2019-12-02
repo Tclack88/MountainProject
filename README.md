@@ -52,3 +52,20 @@ The features I've engineered are ok, I'm sure there are more
 # `mproj_analysis.ipynb`
 
 This represents the analysis part I've done on the above collected data, see the data better presented [on my blog](https://tclack88.github.io/blog/personal/2019/09/27/climber-analysis.html)
+
+<hr>
+
+# `rp\_os\_pyramids.ipynb`
+
+This notebook is used for self-assessment of pyramids for redpoint and onsight climbs for trad and sport climbs. Ideally, when you go from your hardest climbed grade to the next hardest, you should have done twice as many. Same goes from the 2nd to the 3rd highest. These numbers don't have to be exact, but it's a good rule of thumb. As an example:
+If you climb 13b (congrats btw) your top 5 grade breakdown should be something like:
+- 1 x 13b
+- 2 x 13a
+- 4 x 12d
+- 8 x 12c
+- 9 x 12b
+
+Here's an example of the output of this notebook
+
+![redpoint sport pyramid](images/sport_onsight_pyramid.png)
+
