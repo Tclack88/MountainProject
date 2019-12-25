@@ -36,10 +36,12 @@ api_key = "#########-################################"
 
 
 # used to reduce lists of lists (and possibly of more lists) to a single list
+# additional feature added: remove Nonetype entries
 # Copied from Rosetta Code
 def flatten(lst):
-    return sum( ([x] if not isinstance(x, list) else flatten(x) for x in lst), [] )
-
+    outlist = sum( ([x] if not isinstance(x, list) else flatten(x) for x in lst), [] )
+    outlist = [i for i in outlist if i] # removes Nonetype (introduced for blank areas)
+    return outlist
 
 
 
@@ -75,10 +77,15 @@ def find_routes(url):
     source = requests.get(url).text
     soup = BeautifulSoup(source,'html.parser')
     routes = soup.find('table',id='left-nav-route-table')
-    routes = routes.findChildren('a')
-    route_links.append([route['href'] for route in routes])
-    route_links = flatten(route_links)
-    return route_links
+    # some times a blank subarea exists and the above id does not
+    try:
+        routes = routes.findChildren('a')
+        route_links.append([route['href'] for route in routes])
+        route_links = flatten(route_links)
+        return route_links
+    except:
+        pass
+
 
 
 # group_routes clusters route ids in groups of 100
