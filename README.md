@@ -73,4 +73,4 @@ Here's an example of the output of this notebook
 
 A notebook to track progress of hangboard sessions. Plots are displayed as an interactive plotly chart. Vertical axis is weight, horizontal axis is date. A penalty is applied for failed attempts so the Vertical axis is adjusted accordingly. (subtract 2.5 lbs x log6(failed attempts) and 2.5 lbs x fraction of the total set time failed) These are arbitrary choices but they encourage progressive overload without punishing failure excessively which lends itself well to motivation
 
-![hangboard progress][images/hangboard_progress.png]
+![hangboard progress](images/hangboard_progress.png)
