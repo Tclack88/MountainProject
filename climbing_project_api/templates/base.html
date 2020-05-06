@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Route Pyramid</title>
+  </head>
+  <body>
+    <h1>Route Pyramid API</h1>
+    <p><b>Submit Data*</b>
+      <form action="/pyramid" method="post">
+        <input type="text" name="csv">
+        <input type="submit" value="Submit!">
+      </form>
+      {% block content %}
+      {% endblock %}
+
+    * csv file from your mountain project account</p>
+
+  </body>
+</html>
