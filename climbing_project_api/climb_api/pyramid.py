@@ -136,6 +136,7 @@ class Pyramid:
     #facecolor=fig.get_facecolor(), edgecolor='none')
     pic_IObytes.seek(0)
     pic_hash = base64.b64encode(pic_IObytes.read())
+    pic_hash = pic_hash.decode("utf-8") # convert from bytes to string
     return pic_hash # I think I want none because I just want to display pyarmids for now. Else return self.pyramids
 
 
