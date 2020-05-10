@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from .pyramid import Pyramid
 import pandas as pd
 import numpy as np
@@ -23,9 +23,9 @@ def create_app():
         csv = request.values['csv']
         p = Pyramid(csv)
         pic_hash = p.show_pyramids() 
-        return render_template('pyramid.html', pic_hash=pic_hash)
-        # TODO: pass in url from url input in 'root'
-        # edit pyramid class to return base64 encoded image
+        result = {'pyramid': pic_hash}
+        return jsonify(result)
+        #return render_template('pyramid.html', pic_hash=pic_hash)
 
 
     return app
