@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 from .pyramid import Pyramid
 import pandas as pd
 import numpy as np
@@ -13,7 +14,7 @@ sb.set(style='whitegrid')
 
 def create_app():
     app = Flask(__name__)
-
+    CORS(app)
     
     with app.app_context():
 
