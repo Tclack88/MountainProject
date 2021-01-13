@@ -1,0 +1,8 @@
+Locally, I began this with "us-power-plants-dash-app" as just "dash-app" 
+which is what my pipenv rememebers it as. 
+
+So to sample run any changes, it's necessary to change the name back. 
+Afterwards: 
+- go into the directory
+- go into pipenv "pipenv shell" 
+- then run it "python3 run.py"

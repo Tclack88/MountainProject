@@ -1,21 +1,17 @@
 [[source]]
-url = "https://pypi.org/simple"
+url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
 [packages]
-matplotlib = "==3.2.1"
+Flask = "==1.0.2"
 pandas = "==1.0.3"
-gunicorn = "==20.0.4"
 numpy = "==1.18.4"
 seaborn = "==0.10.1"
+matplotlib = "==3.2.1"
 lxml = "==4.5.0"
-dash = "*"
-dash-bootstrap-components = "*"
-plotly = "*"
-visdcc = "*"
-dash-daq = "*"
-Flask = "*"
+Flask-Cors = "==3.0.8"
+gunicorn = "==20.0.4"
 
 [dev-packages]
 

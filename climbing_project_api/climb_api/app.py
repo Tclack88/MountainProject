@@ -1,35 +1,59 @@
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS
-from .pyramid import Pyramid
-import pandas as pd
-import numpy as np
-from math import floor
-import io
-import base64
-from datetime import datetime as dt
-import seaborn as sb
-import matplotlib.pyplot as plt
-sb.set(style='whitegrid')
+import dash
+import dash_bootstrap_components as dbc
+
+"""
+https://github.com/facultyai/dash-bootstrap-components
+
+dash-bootstrap-components provides Bootstrap components.
+
+Plotly Dash is great! However, creating the initial layout can require a lot 
+of boilerplate. dash-bootstrap-components reduces this boilerplate by providing 
+standard layouts and high-level components.
+
+A good way to start customising the stylesheet is to use an alternative 
+pre-compiled theme. Bootswatch is a great place to find new themes. Links to 
+CDNs for each of the Bootswatch styles are also included , and can be used 
+with the external_stylesheets argument of the Dash constructor:
+
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CERULEAN])
+
+Go to https://bootswatch.com/ to preview these Bootswatch themes:
+
+dbc.themes.BOOTSTRAP
+dbc.themes.CERULEAN
+dbc.themes.COSMO
+dbc.themes.CYBORG
+dbc.themes.DARKLY
+dbc.themes.FLATLY
+dbc.themes.JOURNAL
+dbc.themes.LITERA
+dbc.themes.LUMEN
+dbc.themes.LUX
+dbc.themes.MATERIA
+dbc.themes.MINTY
+dbc.themes.PULSE
+dbc.themes.SANDSTONE
+dbc.themes.SIMPLEX
+dbc.themes.SKETCHY
+dbc.themes.SLATE
+dbc.themes.SOLAR
+dbc.themes.SPACELAB
+dbc.themes.SUPERHERO
+dbc.themes.UNITED
+dbc.themes.YETI
+"""
+
+external_stylesheets = [
+    dbc.themes.SKETCHY, # theme choice
+    'https://use.fontawesome.com/releases/v5.9.0/css/all.css', # for social media icons
+]
 
 
-def create_app():
-    app = Flask(__name__)
-    CORS(app)
-    
-    with app.app_context():
+meta_tags=[
+    {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'}
+]
 
-        @app.route('/')
-        def root():
-            return render_template('base.html')
-        
-        @app.route('/pyramid', methods=['POST'])
-        def user_pyramid():
-            csv = request.values['csv']
-            p = Pyramid(csv)
-            pic_hash = p.show_pyramids() 
-            result = {'pyramid': pic_hash}
-            return jsonify(result)
-            #return render_template('pyramid.html', pic_hash=pic_hash)
-
-
-        return app
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets, meta_tags=meta_tags)
+app.config.suppress_callback_exceptions = True
+app.title = 'Rock Climbing Pyramid' # appears in browser title bar
+server = app.server
