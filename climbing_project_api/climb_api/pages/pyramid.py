@@ -16,7 +16,7 @@ import json
 from app import app
 
 # import data
-from assets.pyramid_class import Pyramid
+from assets.pyramid_class import *
 # energy_codes = pd.read_csv('assets/energy_codes.csv')
 # data = pd.read_csv('assets/power_plants_human_readable.csv')
 # model = load('assets/ridge_regression_model.joblib')
@@ -84,8 +84,15 @@ column1 = dbc.Col([
         id = 'ticks-url',
         placeholder = 'ex: "mountainproject.com/user/1234567/first-last/tick-export"',
         size = '50',
-        value = ''
+        value = 'https://www.mountainproject.com/user/109791883/trevor-clack/tick-export'
         ),
+    
+    html.Br(),
+
+    dbc.Button('Make Pyramid', color='primary', id='submit', n_clicks=0, type='submit')
+        #id = 'submit',
+        #value = 'Make Pyramid'
+        #),
     ])
 # 
 #     html.Br(),
@@ -151,19 +158,28 @@ column1 = dbc.Col([
 #  
 # 
 # 
+# placeholder Triangle Figure"
+fig = go.Figure(go.Scatter(x=[0,1,2,0], y=[0,2,0,0], fill="toself"))
+
+
 column2 = dbc.Col(
         [
-            html.Img(src=app.get_asset_url('placeholder.png'))
+            #html.Img(src=app.get_asset_url('placeholder.png'))
+            dcc.Graph(
+                id='pyramid',
+                figure=fig)
             ]
         )
 layout = dbc.Row([column1,column2])
 
 @app.callback(
-        Output('','children'),
+        Output('pyramid','figure'),
         [Input('ticks-url', 'value')])
 def make_pyramid(url):
-    P = Pyramid(url)
-    return P.show_pyramids() 
+    document = str(url)
+    P = Pyramid(document)
+    fig = P.show_pyramids()
+    return fig
 
 #         [Input('plant-type-dropdown','value'),
 #             Input('energy-source-dropdown','value'),

@@ -2,9 +2,8 @@ import pandas as pd
 import numpy as np
 from math import floor, ceil
 from datetime import datetime as dt
-import seaborn as sb
-import matplotlib.pyplot as plt
-sb.set(style='whitegrid')
+import plotly.express as px
+import plotly.graph_objects as go
 
 class Pyramid:
   def __init__(self,document):
@@ -142,33 +141,46 @@ class Pyramid:
       year_df = self.data[(self.data.date < end) & (self.data.date >= start)].sort_values('grade',ascending=False) # get year and arrange values
       year_df = year_df[~year_df['lead_style'].isin(['Fell/Hung', np.nan]) & ~year_df['style'].isin(['TR','Follow', np.nan])] # keep nans because at some piont Mountain Project included the tick type. Give benefit of doubt and assume they were all successful climbs
       year_df = year_df[:10]
-      # print(year_df)
-      # year_avg_grade = inv_to_grades[year_avg]   # remove inv_to_grades?
+    
       try:
         year_avg =  round(year_df.grade.mean(),1) 
         year_avg_grade = self._grade_to_letter(self._x_round(year_avg))
       except:
         year_avg = 0
         year_avg_grade = '5.0'
-      # print(year_avg_grade)
-      # print(f'{year}: {year_avg} -- {year_avg_grade}')
+  
       years.append(year)
       avgs.append(year_avg)
       labels.append(year_avg_grade)
-      # print(f'{year}: {year_avg} -- ')
-      # print(year_df['Style'].unique())
-      # print(year_df.head(10), year_df.shape[0]) # uncomment to see the climbs
+      
     avgs = [x if x != 0 else None for x in avgs] 
-    fig, ax = plt.subplots()
-    # fig.canvas.draw()
-    # ax.set_yticklabels(label_range_labels)
-    plt.plot(years, avgs)
+    #fig, ax = plt.subplots()
+    
+    #plt.plot(years, avgs)
     # change labels from numbers to letter grades
-    fig.canvas.draw()
-    old_labels = [item.get_text() for item in ax.get_yticklabels()]
-    new_labels = [self._grade_to_letter(self._x_round(float(label))) for label in old_labels]
-    ax.set_yticklabels(new_labels)
-    plt.show(); #TODO
+    #fig.canvas.draw()
+    #old_labels = [item.get_text() for item in ax.get_yticklabels()]
+    #new_labels = [self._grade_to_letter(self._x_round(float(label))) for label in old_labels]
+    #ax.set_yticklabels(new_labels)
+    #plt.show(); #TODO
+    ##########################################################################################################
+    """
+    
+
+    bottom, top = floor(min(avgs)), ceil(max(avgs))
+    label_range = sorted(list(set([float(x_round(grade)) for grade in new_ropes if (bottom <= grade <= top)])))
+    # print(label_range)
+    label_range_labels = [grade_to_letter(g) for g in label_range]
+    """
+    bottom, top = floor(min(avgs)), ceil(max(avgs))
+    label_range = sorted(list(set([float(self._x_round(grade)) for grade in self.new_ropes if (bottom <= grade <= top)])))
+    # print(label_range)
+    label_range_labels = [self._grade_to_letter(g) for g in label_range]
+    fig2 = go.Figure(data=go.Scatter(x=years, y=avgs))
+    fig2.update_layout(yaxis = dict(
+                     tickvals=label_range,
+                      ticktext=label_range_labels))
+    fig2.show()
 
 
     # TODO: make "none" a default argument, if none, return all (boulder maybe in future)
@@ -182,20 +194,18 @@ class Pyramid:
       self.style = self.styles[1]
       self.top_pyramid = self.pyramids[1]
       self.title = self.titles[1]
-    sb.barplot(y='grade', x='count', data=self.top_pyramid, color='green')
-    plt.title(self.title)
+    #sb.barplot(y='grade', x='count', data=self.top_pyramid, color='green')
+    print('top pyramid')
+    print(self.top_pyramid)
+    fig = px.bar(self.top_pyramid, x="count", y="grade", orientation='h')
+    fig.layout.yaxis=dict(autorange="reversed")
+    #fig.show()
+    #plt.title(self.title)
     #plt.show()
     print(self.top_pyramid)
     print('\n\n\t\ttop 10')
     print(self.style.sort_values('grade',ascending=False).head(10))
-    pic_IObytes = io.BytesIO()
-    plt.savefig(pic_IObytes,  format='png')
-    #facecolor=fig.get_facecolor(), edgecolor='none')
-    pic_IObytes.seek(0)
-    pic_hash = base64.b64encode(pic_IObytes.read())
-    pic_hash = pic_hash.decode("utf-8") # convert from bytes to string
-    return pic_hash 
-
+    return fig # I think I want none because I just want to display pyramids for now. Else return self.pyramids
 
 
   # TODO: run show_pyramid first to establish trad or sport pyramid or.... pull stuff out of show_pyramid first into __init__ 
