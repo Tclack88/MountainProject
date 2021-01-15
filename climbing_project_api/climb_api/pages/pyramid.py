@@ -89,6 +89,16 @@ column1 = dbc.Col([
     
     html.Br(),
 
+    dcc.RadioItems(
+        id='style',
+        options=[
+            {'label':'sport', 'value':'sport'},
+            {'label':'trad', 'value':'trad'}
+            ],
+        value='sport',
+        style={'display':'inline-block'}),
+
+    html.Br(),
     dbc.Button('Make Pyramid', color='primary', id='submit', n_clicks=0, type='submit')
         #id = 'submit',
         #value = 'Make Pyramid'
@@ -174,11 +184,12 @@ layout = dbc.Row([column1,column2])
 
 @app.callback(
         Output('pyramid','figure'),
-        [Input('ticks-url', 'value')])
-def make_pyramid(url):
+        [Input('ticks-url', 'value'),
+            Input('style','value')])
+def make_pyramid(url,style):
     document = str(url)
     P = Pyramid(document)
-    fig = P.show_pyramids()
+    fig = P.show_pyramids(style)
     return fig
 
 #         [Input('plant-type-dropdown','value'),
