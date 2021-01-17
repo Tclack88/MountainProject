@@ -4,6 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_daq as daq
 from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 import plotly.express as px
 import pandas as pd
 from textwrap import dedent as d
@@ -99,7 +100,7 @@ column1 = dbc.Col([
         style={'display':'inline-block'}),
 
     html.Br(),
-    dbc.Button('Make Pyramid', color='primary', id='submit', n_clicks=0, type='submit')
+    dbc.Button('Make Pyramid', color='primary', id='submit', type='submit')
         #id = 'submit',
         #value = 'Make Pyramid'
         #),
@@ -185,8 +186,10 @@ layout = dbc.Row([column1,column2])
 @app.callback(
         Output('pyramid','figure'),
         [Input('ticks-url', 'value'),
-            Input('style','value')])
-def make_pyramid(url,style):
+            Input('style','value'),
+            #Input('submit','n_clicks') #TODO update pyramid after button click
+            ])
+def make_pyramid(url, style):
     document = str(url)
     P = Pyramid(document)
     fig = P.show_pyramids(style)
