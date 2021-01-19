@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_daq as daq
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import plotly.express as px
 import pandas as pd
@@ -100,7 +100,8 @@ column1 = dbc.Col([
         style={'display':'inline-block'}),
 
     html.Br(),
-    dbc.Button('Make Pyramid', color='primary', id='submit', type='submit')
+    #html.Button(id='submit', n_clicks=0, children='Make Pyramid!',color='primary')
+    dbc.Button('Make Pyramid', color='primary', id='submit', type='submit', n_clicks=0)
         #id = 'submit',
         #value = 'Make Pyramid'
         #),
@@ -185,15 +186,18 @@ layout = dbc.Row([column1,column2])
 
 @app.callback(
         Output('pyramid','figure'),
-        [Input('ticks-url', 'value'),
-            Input('style','value'),
-            #Input('submit','n_clicks') #TODO update pyramid after button click
-            ])
-def make_pyramid(url, style):
-    document = str(url)
-    P = Pyramid(document)
-    fig = P.show_pyramids(style)
-    return fig
+        [Input('submit','n_clicks'), # I think button click is fixed
+         State('ticks-url', 'value'),
+         State('style','value')])
+
+def make_pyramid(n_clicks,url,style):
+    if url is None:
+        raise PreventUpdate
+    else:
+        document = str(url)
+        P = Pyramid(document)
+        fig = P.show_pyramids(style)
+        return fig
 
 #         [Input('plant-type-dropdown','value'),
 #             Input('energy-source-dropdown','value'),
