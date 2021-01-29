@@ -58,6 +58,7 @@ footer = dbc.Container(
 # https://dash.plot.ly/urls
 
 app.layout = html.Div([
+    #dcc.Store(id='ticks-url', storage_type='session'), # just added
     dcc.Location(id='url', refresh=False), 
     navbar, 
     dbc.Container(id='page-content', className='mt-4'), 

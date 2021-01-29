@@ -33,6 +33,8 @@ column1 = dbc.Col(
             ## Climbing pyramid
 
             Learn about your progress, link your mountain project ticks
+            
+            Add Mountiain Project url and try it out!
 
            """
         ),

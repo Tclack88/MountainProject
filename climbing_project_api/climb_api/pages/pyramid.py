@@ -7,10 +7,9 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import plotly.express as px
 import pandas as pd
-from textwrap import dedent as d
+#from textwrap import dedent as d
 import visdcc
 import plotly.graph_objs as go
-#from joblib import load
 import numpy as np
 import json
 
@@ -85,7 +84,7 @@ column1 = dbc.Col([
         id = 'ticks-url',
         placeholder = 'ex: "mountainproject.com/user/1234567/first-last/tick-export"',
         size = '50',
-        value = 'https://www.mountainproject.com/user/109791883/trevor-clack/tick-export'
+        #value = 'https://www.mountainproject.com/user/109791883/trevor-clack/tick-export'
         ),
     
     html.Br(),
@@ -98,6 +97,40 @@ column1 = dbc.Col([
             ],
         value='sport',
         style={'display':'inline-block'}),
+
+    html.Br(),
+
+    html.Div(
+        [dcc.Dropdown(
+            id = 'location-dropdown-1',
+            placeholder = 'Narrow down location')
+        ], style={'display':'none'}, id='location-1-div',
+    ),
+
+    html.Br(),
+
+    dcc.Dropdown(
+        id = 'location-dropdown-2',
+        placeholder = 'Narrow down location'),
+
+    html.Br(),
+
+    dcc.Dropdown(
+        id = 'location-dropdown-3',
+        placeholder = 'Narrow down location'),
+
+    html.Br(),
+
+    dcc.Dropdown(
+        id = 'location-dropdown-4',
+        placeholder = 'Narrow down location'),
+
+    html.Br(),
+
+    dcc.Dropdown(
+        id = 'location-dropdown-5',
+        placeholder = 'Narrow down location'),
+
 
     html.Br(),
     #html.Button(id='submit', n_clicks=0, children='Make Pyramid!',color='primary')
@@ -198,6 +231,50 @@ def make_pyramid(n_clicks,url,style):
         P = Pyramid(document)
         fig = P.show_pyramids(style)
         return fig
+
+# Populate dropdowns
+
+@app.callback(
+        Output(component_id='location-1-div', component_property='style'),
+        [Input('submit','n_clicks'),
+            State('ticks-url', 'value')])
+def show_location1(n_clicks, url):
+    #print(P.climber)
+    document = str(url)
+    location_list = pd.read_csv(document).Location.unique()
+    if any(location_list):
+        return {'display':'inline'}
+    else:
+        return {'display':'none'}
+
+@app.callback(
+        Output('location-dropdown-1','options'),
+        [Input('ticks-url', 'value')])
+def update_location_dropdown1(url):
+    document = str(url)
+    location_list = pd.read_csv(document).Location.unique()
+    top = []
+    edge_list = []
+    node_list = []
+    for l in location_list:
+        sub_list = l.split(' > ')
+        first_item = sub_list[0]
+        if not first_item in top:
+            top.append(first_item)
+        for i in range(0, len(sub_list)):
+            if not sub_list[i] in node_list:
+                node_list.append(sub_list[i])
+            if i == len(sub_list)-1:
+                break
+
+            pair = '>'.join([sub_list[i],sub_list[i+1]])
+            if not pair in edge_list:
+                edge_list.append(pair)
+    return [{'label': choice,'value':choice} for choice in top]
+
+
+#         return [{'label': source,'value':source} for source in plant_type__energy_dict[option]]
+# 
 
 #         [Input('plant-type-dropdown','value'),
 #             Input('energy-source-dropdown','value'),
