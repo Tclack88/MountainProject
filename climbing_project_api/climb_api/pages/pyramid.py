@@ -12,6 +12,7 @@ import visdcc
 import plotly.graph_objs as go
 import numpy as np
 import json
+import networkx as nx
 
 from app import app
 
@@ -109,27 +110,39 @@ column1 = dbc.Col([
 
     html.Br(),
 
-    dcc.Dropdown(
-        id = 'location-dropdown-2',
-        placeholder = 'Narrow down location'),
+    html.Div(
+        [dcc.Dropdown(
+            id = 'location-dropdown-2',
+            placeholder = 'Narrow down location')
+        ], style={'display':'none'}, id='location-2-div',
+    ),
 
     html.Br(),
 
-    dcc.Dropdown(
-        id = 'location-dropdown-3',
-        placeholder = 'Narrow down location'),
+     html.Div(
+        [dcc.Dropdown(
+            id = 'location-dropdown-3',
+            placeholder = 'Narrow down location')
+        ], style={'display':'none'}, id='location-3-div',
+    ),
 
     html.Br(),
 
-    dcc.Dropdown(
-        id = 'location-dropdown-4',
-        placeholder = 'Narrow down location'),
+    html.Div(
+        [dcc.Dropdown(
+            id = 'location-dropdown-4',
+            placeholder = 'Narrow down location')
+        ], style={'display':'none'}, id='location-4-div',
+    ),
 
     html.Br(),
 
-    dcc.Dropdown(
-        id = 'location-dropdown-5',
-        placeholder = 'Narrow down location'),
+    html.Div(
+        [dcc.Dropdown(
+            id = 'location-dropdown-5',
+            placeholder = 'Narrow down location')
+        ], style={'display':'none'}, id='location-5-div',
+    ),
 
 
     html.Br(),
@@ -205,6 +218,7 @@ column1 = dbc.Col([
 # 
 # placeholder Triangle Figure"
 fig = go.Figure(go.Scatter(x=[0,1,2,0], y=[0,2,0,0], fill="toself"))
+LOCATION_CHOICES = [] # global, entries set by each dropdown
 
 
 column2 = dbc.Col(
@@ -221,14 +235,18 @@ layout = dbc.Row([column1,column2])
         Output('pyramid','figure'),
         [Input('submit','n_clicks'), # I think button click is fixed
          State('ticks-url', 'value'),
-         State('style','value')])
+         State('style','value'),
+         State('location-dropdown-1','value')])
 
-def make_pyramid(n_clicks,url,style):
+def make_pyramid(n_clicks,url,style,location1=None):
     if url is None:
         raise PreventUpdate
     else:
+        location_choices = []
+        if location1:
+            location_choices.append(location1)
         document = str(url)
-        P = Pyramid(document)
+        P = Pyramid(document,location_choices)
         fig = P.show_pyramids(style)
         return fig
 
@@ -236,41 +254,77 @@ def make_pyramid(n_clicks,url,style):
 
 @app.callback(
         Output(component_id='location-1-div', component_property='style'),
-        [Input('submit','n_clicks'),
-            State('ticks-url', 'value')])
-def show_location1(n_clicks, url):
+        [Input('ticks-url', 'value')])
+def show_location1(url):
     #print(P.climber)
-    document = str(url)
-    location_list = pd.read_csv(document).Location.unique()
-    if any(location_list):
-        return {'display':'inline'}
+    if url is None:
+        raise PreventUpdate
     else:
-        return {'display':'none'}
+        document = str(url)
+        location_list = pd.read_csv(document).Location.unique()
+        if any(location_list):
+            return {'display':'inline'}
+        else:
+            return {'display':'none'}
 
 @app.callback(
         Output('location-dropdown-1','options'),
-        [Input('ticks-url', 'value')])
-def update_location_dropdown1(url):
-    document = str(url)
-    location_list = pd.read_csv(document).Location.unique()
-    top = []
-    edge_list = []
-    node_list = []
-    for l in location_list:
-        sub_list = l.split(' > ')
-        first_item = sub_list[0]
-        if not first_item in top:
-            top.append(first_item)
-        for i in range(0, len(sub_list)):
-            if not sub_list[i] in node_list:
-                node_list.append(sub_list[i])
-            if i == len(sub_list)-1:
-                break
+        [Input('submit','n_clicks'), # I think button click is fixed
+         State('ticks-url', 'value')])
+def update_location_dropdown1(n_clicks, url):
+    if url is None:
+        raise PreventUpdate
+    else:
+        document = str(url)
+        global LOCATION_LIST # make accessible by other dropdowns
+        LOCATION_LIST = pd.read_csv(document).Location.unique()
+        top = []
+        edge_list = []
+        node_list = []
+        for l in LOCATION_LIST:
+            sub_list = l.split(' > ')
+            first_item = sub_list[0]
+            if not first_item in top:
+                top.append(first_item)
+            for i in range(0, len(sub_list)):
+                if not sub_list[i] in node_list:
+                    node_list.append(sub_list[i])
+                if i == len(sub_list)-1:
+                    break
 
-            pair = '>'.join([sub_list[i],sub_list[i+1]])
-            if not pair in edge_list:
-                edge_list.append(pair)
-    return [{'label': choice,'value':choice} for choice in top]
+                pair = '>'.join([sub_list[i],sub_list[i+1]])
+                if not pair in edge_list:
+                    edge_list.append(pair)
+        # make global graphs object with all this
+        global G # G is graph object that contains all areas + sub-areas
+        G = nx.DiGraph()
+        for node in node_list:
+            G.add_node(node)
+        for edge in edge_list:
+            source, child = edge.split('>')
+            G.add_edge(source,child)
+        return [{'label': choice,'value':choice} for choice in top]
+
+# TODO: populate location2 based on location1
+#@app.callback(
+#        Output(component_id='location-2-div', component_property='style'),
+#        [Input('location-dropdown-1', 'value')])
+#def show_location2(location1):
+#    #if url is None:
+#    #    raise PreventUpdate
+#    #else:
+#    if location1:
+#        return {'display':'inline'}
+#    else:
+#        return {'display':'none'}
+#
+# @app.callback(
+#         Output('location-dropdown-2','options'),
+#         [Input('location-dropdown-1','value')])
+# def update_location_dropdown2(location1):
+#     if location1:
+#         raise PreventUpdate
+
 
 
 #         return [{'label': source,'value':source} for source in plant_type__energy_dict[option]]

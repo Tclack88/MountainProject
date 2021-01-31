@@ -10,4 +10,4 @@ dash-bootstrap-components
 plotly
 visdcc
 dash-daq
-
+networkx

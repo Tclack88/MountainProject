@@ -6,8 +6,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 class Pyramid:
-  def __init__(self,document):
+  def __init__(self,document,sub_location=None):
     self.document = document
+    self.sub_location = sub_location
     self.climber = document.split('/')[-2].replace('-',' ').title()
     self.grade_chart = pd.read_html("https://www.mountainproject.com/international-climbing-grades")
     self.old_ropes = self.grade_chart[0].YDSUSA[:-1].to_list()
@@ -15,6 +16,8 @@ class Pyramid:
     self.ropes_convert = dict(zip(self.old_ropes, self.new_ropes))
    
     self.data = self._clean_data(self.document)
+    if sub_location:
+      self.data = self.data[self.data.location.apply(lambda x: all(item in x for item in sub_location))]
     # Split Trad and Sport data
     self.trad = self.data[(self.data['type'] == 'Trad') | (self.data['type'] == 'Trad, Sport') | (self.data['type'] == 'Trad, Alpine') | (self.data['type'] == 'Trad, Aid')]
     self.sport = self.data[(self.data['type'] == 'Sport') | (self.data['type'] == 'Sport, TR')]
@@ -71,9 +74,10 @@ class Pyramid:
     data.Date = pd.to_datetime(data.Date)
     length_data = data[['Date', 'Length']]
     self.yearly_mileage = self._sum_miles(length_data)
-    data = data[['Date','Route', 'Rating', 'Style', 'Lead Style', 'Route Type']]
+    data = data[['Date','Route', 'Rating', 'Style', 'Lead Style', 'Route Type', 'Location']]
     
-    data = data.rename(columns = (dict(zip(data.columns,['date', 'route', 'grade', 'style', 'lead_style', 'type']))))
+    data = data.rename(columns = (dict(zip(data.columns,['date', 'route', 'grade', 'style', 'lead_style', 'type', 'location']))))
+    data.location = data.location.apply(lambda x: x.split(' > ')) # turn in to list (for graph object parsing and subdivision)
     data.grade = data.grade.apply(self._clean_grade)
     data = data[data['style'] == 'Lead']
     data = data[data.grade.apply(lambda x: type(x) in [int,np.int64, float, np.float64])] # get rid of strings (ex WI)
@@ -185,6 +189,7 @@ class Pyramid:
 
     # TODO: make "none" a default argument, if none, return all (boulder maybe in future)
     # otherwise return sport, trad, etc. if 'sport' or 'trad' is included
+    # TODO: some areas don't have a trad or sport pyramid, etc. do some try/except perhaps so there's no error (ex. me in Utah, I only have a trad pyramid, no sport s there's no "self.styles[1]")
   def show_pyramids(self,pyramid_style='sport'):
     if pyramid_style == 'sport':
       self.style = self.styles[0]
