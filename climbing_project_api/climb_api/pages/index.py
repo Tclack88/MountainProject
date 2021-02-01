@@ -43,29 +43,4 @@ column1 = dbc.Col(
     md=4,
 )
 
-
-# energy_codes = pd.read_csv('assets/energy_codes.csv')
-# data = pd.read_csv('assets/power_plants_human_readable.csv')
-# 
-# # map fuel colors to intuitive colors
-# color_map = dict(zip(energy_codes['Energy Source Description'],energy_codes.color))
-# # hover data
-# hover_name = 'plant_type'
-# hover_data = ['prime_mover','total_power']
-# 
-# title='The current U.S. power layout. Zoom around, find your local power plants!'
-# 
-# fig = px.scatter_mapbox(data_frame = data, lat = 'lat', lon = 'lon', size = 'total_power', color = 'energy_source',color_discrete_map = color_map,zoom=3.2,hover_data=hover_data,hover_name = hover_name,size_max = 25)
-# 
-# 
-# fig.update_layout(mapbox_style = "stamen-watercolor",showlegend=False,title=title, width = 1000, height = 600)
-# 
-
-# column2 = dbc.Col(
-#     [
-#         dcc.Graph(figure=fig),
-#         ],md=8
-# )
-
-#layout = dbc.Row([column1, column2])
 layout = dbc.Row([column1])

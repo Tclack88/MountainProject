@@ -13,60 +13,11 @@ import plotly.graph_objs as go
 import numpy as np
 import json
 import networkx as nx
-
 from app import app
-
 # import data
 from assets.pyramid_class import *
-# energy_codes = pd.read_csv('assets/energy_codes.csv')
-# data = pd.read_csv('assets/power_plants_human_readable.csv')
-# model = load('assets/ridge_regression_model.joblib')
-# 
-# 
-# # set invisible grid for lat/lon selection (us counties)
-# def clean_coordinates(latlon):
-#   latlon = latlon[:-1]
-#   if latlon[0] == '+':
-#     return float(latlon[1:])
-#   elif latlon[0] == '–':
-#     return -1*float(latlon[1:])
-# 
-# county_url = "https://en.wikipedia.org/wiki/User:Michael_J/County_table"
-# counties = pd.read_html(county_url)[0]
-# counties.Latitude = counties.Latitude.apply(clean_coordinates)
-# counties.Longitude = counties.Longitude.apply(clean_coordinates)
-# 
-# 
-# # Main plot
-# color_map = dict(zip(energy_codes['Energy Source Description'],energy_codes.color))
-# hover_name = 'plant_type'
-# hover_data = ['prime_mover','total_power']
-# 
-# customdata=counties['Sort [1]']
-# 
-# data2 = [go.Scattermapbox(lat=[0], lon=[0], mode='markers', marker=dict(size=8))]
-# 
-# mapbox_access_token = 'pk.eyJ1IjoiZXRwaW5hcmQiLCJhIjoiY2luMHIzdHE0MGFxNXVubTRxczZ2YmUxaCJ9.hwWZful0U2CQxit4ItNsiQ'
-# layout = go.Layout(hovermode='closest', width=1000,height=800,mapbox=dict(bearing=0,
-#     center=dict(lat=38.8484, lon=-98.921),
-#     pitch=0,zoom=3.2,accesstoken=mapbox_access_token,style = 'stamen-watercolor'))
-# fig = dict(data=data2, layout=layout)
-# 
-# # original map creation
-# #fig = px.scatter_mapbox(data_frame = counties,lat = 'Latitude',lon = 'Longitude',zoom=3.2,opacity=0)#,customdata='Sort [1]')
-# #fig.update_layout(mapbox_style = "stamen-watercolor",showlegend=False, width = 1000, height = 600)#,paper_bgcolor = 'papayawhip')
-# 
-# 
-# # Dropdown selection
-# plant_type_list = sorted(list(data.plant_type.unique()))
-# 
-# energy_sources_list = [ list(data[data['plant_type'] == plant_type].energy_source.unique()) for plant_type in plant_type_list]
-# 
-# plant_type__energy_dict = dict(zip(plant_type_list,energy_sources_list))
-# 
-# 
-# 
-# ### Layouts
+
+### Layouts
 column1 = dbc.Col([
         
     dcc.Markdown(
@@ -85,7 +36,6 @@ column1 = dbc.Col([
         id = 'ticks-url',
         placeholder = 'ex: "mountainproject.com/user/1234567/first-last/tick-export"',
         size = '50',
-        #value = 'https://www.mountainproject.com/user/109791883/trevor-clack/tick-export'
         ),
     
     html.Br(),
@@ -148,78 +98,11 @@ column1 = dbc.Col([
     html.Br(),
     #html.Button(id='submit', n_clicks=0, children='Make Pyramid!',color='primary')
     dbc.Button('Make Pyramid', color='primary', id='submit', type='submit', n_clicks=0)
-        #id = 'submit',
-        #value = 'Make Pyramid'
-        #),
     ])
-# 
-#     html.Br(),
-#         
-#     dcc.Dropdown(
-#         id = 'energy-source-dropdown',
-#         placeholder = 'Select energy source...'),
-#     
-#     html.Br(),
-# 
-#     dcc.Dropdown(
-#         id = 'prime-mover-dropdown',
-#         placeholder = 'Select prime mover...'),
-# 
-#     html.Hr(),
-#     html.Label('Set number of generators and year built',style={'display':'inline-block'} ),
-#     dcc.Slider(id='number-generators-slider',
-#         min = 1,
-#         max = 200,
-#         step = 1,
-#         value = 10,
-#         marks = {'10':'10','50':'50','100':'100','200':'200'}),
-#     html.Br(),
-#     html.P('10',id='number-generators-selected'),
-# 
-#     html.Br(),
-# 
-#     html.P('Year',style={'display':'inline-block'}),
-#     daq.NumericInput(id='year-built',
-#         value = 2020,
-#         min = 1880,
-#         max = 2025,
-#         style={'display':'inline-block'}),
-# 
-# 
-#     html.Hr(),
-# 
-#     html.Label('Set location:',style={'display':'inline-block'} ),
-# 
-#     html.H5('LongLat:   ',id='lnglat-display'),
-# 
-#     html.Br(),
-#     html.Hr(),
-# 
-#     html.Label('This plant\'s predicted power:',style={'display':'inline-block'} ),
-#     html.H5('Power (MegaWatts)',id='power-display'),
-# 
-#     ],md=4
-# )
-# 
-# 
-# live_lat_lon_style = {'textAlign':'right'}
-# 
-# column2 = dbc.Col(
-#     [
-#         dcc.Graph(id='graph',figure=fig),
-#         visdcc.Run_js(id = 'javascript'),
-# 
-#         html.H5('lat,long',id='live-lat-lon',style =live_lat_lon_style ),
-#         visdcc.Run_js(id = 'javascript2')
-#     ],md=8
-# )
-#  
-# 
-# 
+ 
 # placeholder Triangle Figure"
 fig = go.Figure(go.Scatter(x=[0,1,2,0], y=[0,2,0,0], fill="toself"))
-LOCATION_CHOICES = [] # global, entries set by each dropdown
-
+fig.update_layout(title_text="No Info Yet")
 
 column2 = dbc.Col(
         [
@@ -236,15 +119,29 @@ layout = dbc.Row([column1,column2])
         [Input('submit','n_clicks'), # I think button click is fixed
          State('ticks-url', 'value'),
          State('style','value'),
-         State('location-dropdown-1','value')])
+         State('location-dropdown-1','value'),
+         State('location-dropdown-2','value'),
+         State('location-dropdown-3','value'),
+         State('location-dropdown-4','value')])
 
-def make_pyramid(n_clicks,url,style,location1=None):
+def make_pyramid(n_clicks,url,style,
+        location1=None,location2=None,location3=None,location4=None):
     if url is None:
         raise PreventUpdate
     else:
         location_choices = []
         if location1:
             location_choices.append(location1)
+        if location2:
+            location_choices.append(location2)
+        if location3:
+            location_choices.append(location3)
+        if location4:
+            location_choices.append(location4)
+            print('we got a 4')
+        elif not location4:
+            print('no 4 :[')
+        print(location_choices)
         document = str(url)
         P = Pyramid(document,location_choices)
         fig = P.show_pyramids(style)
@@ -252,6 +149,7 @@ def make_pyramid(n_clicks,url,style,location1=None):
 
 # Populate dropdowns
 
+# LOCATION 1
 @app.callback(
         Output(component_id='location-1-div', component_property='style'),
         [Input('ticks-url', 'value')])
@@ -276,12 +174,12 @@ def update_location_dropdown1(n_clicks, url):
         raise PreventUpdate
     else:
         document = str(url)
-        global LOCATION_LIST # make accessible by other dropdowns
-        LOCATION_LIST = pd.read_csv(document).Location.unique()
+        #global LOCATION_LIST # make accessible by other dropdowns
+        location_list = pd.read_csv(document).Location.unique()
         top = []
         edge_list = []
         node_list = []
-        for l in LOCATION_LIST:
+        for l in location_list:
             sub_list = l.split(' > ')
             first_item = sub_list[0]
             if not first_item in top:
@@ -305,198 +203,63 @@ def update_location_dropdown1(n_clicks, url):
             G.add_edge(source,child)
         return [{'label': choice,'value':choice} for choice in top]
 
-# TODO: populate location2 based on location1
-#@app.callback(
-#        Output(component_id='location-2-div', component_property='style'),
-#        [Input('location-dropdown-1', 'value')])
-#def show_location2(location1):
-#    #if url is None:
-#    #    raise PreventUpdate
-#    #else:
-#    if location1:
-#        return {'display':'inline'}
-#    else:
-#        return {'display':'none'}
-#
-# @app.callback(
-#         Output('location-dropdown-2','options'),
-#         [Input('location-dropdown-1','value')])
-# def update_location_dropdown2(location1):
-#     if location1:
-#         raise PreventUpdate
 
+# LOCATION 2
+@app.callback(
+        Output(component_id='location-2-div', component_property='style'),
+        [Input('location-dropdown-1', 'value')])
+def show_location2(location1):
+    if location1:
+        return {'display':'inline'}
+    else:
+        return {'display':'none'}
 
+@app.callback(
+        Output('location-dropdown-2','options'),
+        [Input('location-dropdown-1','value')])
+def update_location_dropdown2(location1):
+    if location1 is None:
+        raise PreventUpdate
+    else:
+        options = G.successors(location1)
+        return [{'label': option,'value':option} for option in options]
 
-#         return [{'label': source,'value':source} for source in plant_type__energy_dict[option]]
-# 
+# LOCATION 3
+@app.callback(
+        Output(component_id='location-3-div', component_property='style'),
+        [Input('location-dropdown-2', 'value')])
+def show_location3(location2):
+    if location2:
+        return {'display':'inline'}
+    else:
+        return {'display':'none'}
 
-#         [Input('plant-type-dropdown','value'),
-#             Input('energy-source-dropdown','value'),
-#             Input('prime-mover-dropdown','value'),
-#             Input('year-built','value'),
-#             Input('lnglat-display','children'),
-#             Input('number-generators-selected','children')
-#         ])
-# def display_power(pt,es,pm,year,coords,n):
-#     coords = coords.split()
-#     lat = float(coords[1][4:])
-#     lon = float(coords[0][4:])
-#     sample = [[pt,es,pm,int(year),float(lat),float(lon),int(n)]]
-#     sample2 = [pt,es,pm,str(year),lat,lon,str(n)]
-#     cols = data.columns.drop(['total_power','power_encoded'])
-#     predict_df = pd.DataFrame(sample,columns = cols)
-#     prediction =  np.expm1(model.predict(predict_df)[0])
-#     return f'{prediction:,.2f} MW'
-# 
-# 
-# 
-# 
-# @app.callback(
-#         Output('energy-source-dropdown','options'),
-#         [Input('plant-type-dropdown','value')])
-# def update_energy_source_dropdown(option):
-#     return [{'label': source,'value':source} for source in plant_type__energy_dict[option]]
-# 
-# @app.callback(
-#         Output('prime-mover-dropdown','options'),
-#         [Input('plant-type-dropdown','value'),Input('energy-source-dropdown','value')])
-# def update_prime_mover_dropdown(plant,energy):
-#     #gp = data.groupby(['plant_type','energy_source']).prime_mover
-#     #choice_list = list(gp.groups.keys())
-#     prime_mover_list = list(data[(data.plant_type == plant) & (data.energy_source == energy)].prime_mover.unique())
-#     return [{'label':pm, 'value':pm} for pm in prime_mover_list]
-# 
-# 
-# # Part of an old solution
-# # @app.callback(
-# #     Output('relayout-data', 'children'),
-# #     [Input('basic-interactions', 'relayoutData')])
-# # def display_relayout_data(clickData):
-# #     return json.dumps(clickData, indent=2)
-# 
-# # @app.callback(
-# #          Output('relayout-data','children'),
-# #          [Input('plot','relayoutData')])
-# # def visualize(figure):
-# #     string =  str(figure['layout'].update(dict(mapbox = dict(center = dict (lat = relayoutData['mapbox.center']['Latitude'], lon = relayoutData['mapbox.center']['Longitude'] ), zoom = relayoutData["mapbox.zoom"]))))
-# #     string = 'newstring'
-# #     print(string)
-# #     return string
-#  
-# 
-# # @app.callback(
-# #     dash.dependencies.Output('display-lat-lon', 'children'),
-# #     [dash.dependencies.Input('map', 'hoverData')])
-# # def update_text(hoverData):
-# #     s = counties[counties['Sort [1]'] == hoverData['points'][0]['customdata']]
-# #     return html.P(f'lat: {s.iloc[0]["Latitude"]},\tlon: {s.iloc[0]["Longitude"]}')
-# 
-# @app.callback(
-#         Output('number-generators-selected','children'),
-#         [Input('number-generators-slider','value')])
-# def change_generator_number(value):
-#     return value
-# 
-# 
-# @app.callback(
-#     Output('javascript', 'run'),
-#     [Input('graph', 'id')])
-# def getlnglat(x):
-#     if x:
-#         return(
-#         '''
-#             let map1 = document.getElementById('graph')
-#             let map = map1._fullLayout.mapbox._subplot.map
-#             map.on('click', function(e) {
-#             let lngLat = e.lngLat
-#             setProps({'event': {lon: lngLat.lng.toFixed(3), lat: lngLat.lat.toFixed(3)}})
-#             })
-#         
-#         ''')
-#     return ""
-# 
-# 
-# @app.callback(
-#     Output('lnglat-display', 'children'),
-#     [Input('javascript', 'event')])
-# def showlnglat(event):
-#     if event:
-#         return f'Lon:{event["lon"]} Lat:{event["lat"]} '
-#     return 'Get location by hovering over the map'
-# 
-# 
-# 
-# 
-# @app.callback(
-#     Output('javascript2', 'run'),
-#     [Input('graph', 'id')])
-# def getlnglat(x):
-#     if x:
-#         return(
-#         '''
-#             let map1 = document.getElementById('graph')
-#             let map = map1._fullLayout.mapbox._subplot.map
-#             map.on('mousemove', function(e) {
-#             let lngLat = e.lngLat
-#             setProps({'event': {lon: lngLat.lng.toFixed(3), lat: lngLat.lat.toFixed(3)}})
-#             })
-# 
-#         ''')
-#     return ""
-# 
-# 
-# @app.callback(
-#     Output('live-lat-lon', 'children'),
-#     [Input('javascript2', 'event')])
-# def showlnglat(event):
-#     if event:
-#         return f'Lon:{event["lon"]} Lat:{event["lat"]} '
-#     return 'Select location by clicking on the map'
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# @app.callback(
-#         Output('power-display','children'),
-#         [Input('plant-type-dropdown','value'),
-#             Input('energy-source-dropdown','value'),
-#             Input('prime-mover-dropdown','value'),
-#             Input('year-built','value'),
-#             Input('lnglat-display','children'),
-#             Input('number-generators-selected','children')
-#         ])
-# def display_power(pt,es,pm,year,coords,n):
-#     coords = coords.split()
-#     lat = float(coords[1][4:])
-#     lon = float(coords[0][4:])
-#     sample = [[pt,es,pm,int(year),float(lat),float(lon),int(n)]]
-#     sample2 = [pt,es,pm,str(year),lat,lon,str(n)]
-#     cols = data.columns.drop(['total_power','power_encoded'])
-#     predict_df = pd.DataFrame(sample,columns = cols)
-#     prediction =  np.expm1(model.predict(predict_df)[0])
-#     return f'{prediction:,.2f} MW'
-# 
-# 
-# 
-# @app.callback(
-#         Output('graph','figure'),
-#         [Input('javascript','event'),
-#             Input('energy-source-dropdown','value')])
-# def update_pointer(event,en_src):
-#     data = [go.Scattermapbox(lat=[38.8484], lon=[-98.921],
-#         mode='markers', marker=dict(size=8))]
-#     if event:
-#         color = color_map[en_src]
-#         data = [go.Scattermapbox(lat=[event["lat"]], lon=[event["lon"]],
-#         mode='markers', marker=dict(size=20,color=color), text = [en_src])]
-# 
-#     layout = go.Layout(hovermode='closest', width=1000,height=800,mapbox=dict(bearing=0,
-#     center=dict(lat=38.8484, lon=-98.921),
-#     pitch=0,zoom=3.2,accesstoken=mapbox_access_token,style = 'stamen-watercolor'))
-#     
-#     fig = dict(data=data, layout=layout)
-#     return fig
-# 
+@app.callback(
+        Output('location-dropdown-3','options'),
+        [Input('location-dropdown-2','value')])
+def update_location_dropdown3(location2):
+    if location2 is None:
+        raise PreventUpdate
+    else:
+        options = G.successors(location2)
+        return [{'label': option,'value':option} for option in options]
+
+# LOCATION 4
+@app.callback(
+        Output(component_id='location-4-div', component_property='style'),
+        [Input('location-dropdown-3', 'value')])
+def show_location4(location3):
+    if location3:
+        return {'display':'inline'}
+    else:
+        return {'display':'none'}
+
+@app.callback(
+        Output('location-dropdown-4','options'),
+        [Input('location-dropdown-3','value')])
+def update_location_dropdown4(location3):
+    if location3 is None:
+        raise PreventUpdate
+    else:
+        options = G.successors(location3)
+        return [{'label': option,'value':option} for option in options]
