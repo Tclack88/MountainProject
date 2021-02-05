@@ -16,6 +16,7 @@ plotly = "*"
 visdcc = "*"
 dash-daq = "*"
 Flask = "*"
+networkx = "*"
 
 [dev-packages]
 
