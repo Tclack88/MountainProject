@@ -29,21 +29,21 @@ class Pyramid:
 
     self.sport_combined = pd.concat([self.sport_rp,self.sport_os], axis=0)
     self.trad_combined = pd.concat([self.trad_rp, self.trad_os], axis=0)
-    self.styles = [self.sport_combined, self.trad_combined]
+    self.styles = {'sport':self.sport_combined, 'trad':self.trad_combined}
     date = dt.now().strftime('%-d%b%Y')
-    self.pyramids = []
-    self.titles = []
-    for i, style in enumerate(self.styles):
+    self.pyramids = {}
+    self.titles = {}
+    for key, style in self.styles.items():
       if not style.empty:
         self.title = f"{self.climber}\n{style.iloc[0]['type'].split(',')[0]} pyramid \n as of {date}\n"
         self.top_pyramid = style.grade.apply(self._x_round).value_counts().sort_index(ascending=False).iloc[:6].reset_index()
         self.top_pyramid.columns = ('grade','count')
         self.top_pyramid.grade = self.top_pyramid.grade.apply(self._grade_to_letter)
-        self.pyramids.append(self.top_pyramid)
-        self.titles.append(self.title)
+        self.pyramids[key] = self.top_pyramid
+        self.titles[key] = self.title
     
-    self.sport_pyramid = self.pyramids[0]
-    self.trad_pyramid = self.pyramids[1]
+    self.sport_pyramid = self.pyramids['sport']
+    self.trad_pyramid = self.pyramids['trad']
 
     self.grades_list = '0 1 2 3 4 5 6 7 7+ 8- 8 8+ 9- 9 9+'.split()
     self.numbs = '10 11 12 13 14 15'.split()
@@ -191,14 +191,9 @@ class Pyramid:
     # otherwise return sport, trad, etc. if 'sport' or 'trad' is included
     # TODO: some areas don't have a trad or sport pyramid, etc. do some try/except perhaps so there's no error (ex. me in Utah, I only have a trad pyramid, no sport s there's no "self.styles[1]")
   def show_pyramids(self,pyramid_style='sport'):
-    if pyramid_style == 'sport':
-      self.style = self.styles[0]
-      self.top_pyramid = self.pyramids[0]
-      self.title = self.titles[0]
-    elif pyramid_style == 'trad':
-      self.style = self.styles[1]
-      self.top_pyramid = self.pyramids[1]
-      self.title = self.titles[1]
+    self.style = self.styles[pyramid_style]
+    self.top_pyramid = self.pyramids[pyramid_style]
+    self.title = self.titles[pyramid_style]
     #sb.barplot(y='grade', x='count', data=self.top_pyramid, color='green')
     print('top pyramid')
     print(self.top_pyramid)
