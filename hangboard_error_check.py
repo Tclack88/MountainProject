@@ -23,8 +23,8 @@ problems = df.applymap(lambda x: error_check(x))
 indices = problems.index.to_list()
 locations = [(indices[x], problems.columns[y]) for x,y in zip(*np.where(problems.values == True))] # get "coordinates" i.e. row, column where "True" exists
 
-print('Mistakes-- check these:')
 if locations:
+    print('Mistakes-- check these:')
     for date, hold in locations:
         print(f'{date.to_pydatetime().strftime("%d%b%Y")} : {hold}')
 
