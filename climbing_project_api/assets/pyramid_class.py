@@ -7,6 +7,10 @@ import plotly.graph_objects as go
 
 class Pyramid:
   def __init__(self,document,sub_location=None):
+    """ 
+    document: url (from mountain project of csv)
+    sub_location: default to "all". Otherwise pass list starting from state. eg.: ['California', 'Joshua Tree National Park'] 
+    """
     self.document = document
     self.sub_location = sub_location
     self.climber = document.split('/')[-2].replace('-',' ').title()
@@ -18,32 +22,41 @@ class Pyramid:
     self.data = self._clean_data(self.document)
     if sub_location:
       self.data = self.data[self.data.location.apply(lambda x: all(item in x for item in sub_location))]
-    # Split Trad and Sport data
-    self.trad = self.data[(self.data['type'] == 'Trad') | (self.data['type'] == 'Trad, Sport') | (self.data['type'] == 'Trad, Alpine') | (self.data['type'] == 'Trad, Aid')]
-    self.sport = self.data[(self.data['type'] == 'Sport') | (self.data['type'] == 'Sport, TR')]
-    self.trad_rp = self.trad[self.trad.lead_style.isin(['Redpoint','Pinkpoint'])]
-    self.trad_os = self.trad[self.trad.lead_style == 'Onsight']
-    self.trad_os.grade.apply(self._x_round).value_counts().sort_index(ascending=False)
-    self.sport_rp = self.sport[self.sport.lead_style.isin(['Redpoint','Pinkpoint'])]
-    self.sport_os = self.sport[self.sport.lead_style == 'Onsight']
+    else:  # for use in the title
+      self.sub_location = ['total']
 
-    self.sport_combined = pd.concat([self.sport_rp,self.sport_os], axis=0)
-    self.trad_combined = pd.concat([self.trad_rp, self.trad_os], axis=0)
-    self.styles = {'sport':self.sport_combined, 'trad':self.trad_combined}
-    date = dt.now().strftime('%-d%b%Y')
+    all_types = self.data['type'].unique()
+    trad_types = [t for t in all_types if 'Trad' in t]
+    sport_types = [t for t in all_types if 'Sport' in t and 'Trad' not in t]
+
+    self.style_options = {}
+    if trad_types:
+      self.style_options['trad'] = trad_types
+    if sport_types:
+      self.style_options['sport'] = sport_types
+
+
+  def make_pyramid(self, pyramid_styles=None, lead_styles=['Redpoint','Pinkpoint','Onsight']):
+    # Split Trad and Sport data
+    if pyramid_styles == None:
+      pyramid_styles = [list(self.style_options.keys())[0]]
+    self.styles = {}
+    for p in pyramid_styles:
+      try:
+        self.styles[p] = self.data[(self.data['type'].isin(self.style_options[p])) & (self.data['lead_style'].isin(lead_styles))]
+      except KeyError:
+        pass
+
     self.pyramids = {}
     self.titles = {}
-    for key, style in self.styles.items():
+    for key,style in self.styles.items():   # likely unnecessary going forward, perhaps split boulders from routes
       if not style.empty:
-        self.title = f"{self.climber}\n{style.iloc[0]['type'].split(',')[0]} pyramid \n as of {date}\n"
-        self.top_pyramid = style.grade.apply(self._x_round).value_counts().sort_index(ascending=False).iloc[:6].reset_index()
-        self.top_pyramid.columns = ('grade','count')
-        self.top_pyramid.grade = self.top_pyramid.grade.apply(self._grade_to_letter)
-        self.pyramids[key] = self.top_pyramid
-        self.titles[key] = self.title
-    
-    self.sport_pyramid = self.pyramids['sport']
-    self.trad_pyramid = self.pyramids['trad']
+        top_pyramid = style
+        top_pyramid.grade = style.grade.apply(self._x_round)
+        top_grades = top_pyramid.grade.unique()
+        top_grades.sort()
+        top_pyramid.grade = top_pyramid.grade.apply(self._grade_to_letter)
+        self.pyramids[key] = top_pyramid
 
     self.grades_list = '0 1 2 3 4 5 6 7 7+ 8- 8 8+ 9- 9 9+'.split()
     self.numbs = '10 11 12 13 14 15'.split()
@@ -51,6 +64,7 @@ class Pyramid:
     for i in self.numbs:
       for j in self.letters:
         self.grades_list.append(i+j)
+
 
   def _sum_miles(self, length_data):
     min_date = length_data.Date.min().year
@@ -68,7 +82,6 @@ class Pyramid:
       yearly_mileage[year] = length
     return yearly_mileage
 
-  # @staticmethod
   def _clean_data(self,document):
     data = pd.read_csv(document)
     data.Date = pd.to_datetime(data.Date)
@@ -83,14 +96,12 @@ class Pyramid:
     data = data[data.grade.apply(lambda x: type(x) in [int,np.int64, float, np.float64])] # get rid of strings (ex WI)
     return data
 
-  # @staticmethod
   def _clean_grade(self, grade):
     grade = str(grade).split()[0]
     if grade[0] == '5':
       grade = self.ropes_convert[grade]
     return grade
 
-  # @staticmethod
   def _x_round(self, x):
     """ rounds back to decimanls that can be reversed to letter grades
     for 10 and greater, rounds down to nearest .25
@@ -105,7 +116,6 @@ class Pyramid:
       end = return_map[min(x-base, abs(x-base-.4), abs(x-base-.8))]
       return float(base + end)
 
-  # @staticmethod
   def _grade_to_letter(self, grade):
     letter_map = {'.0':'a', '.25':'b', '.5':'c', '.75':'d'}
     letter_map_low = {'.0':'-', '.4':'', '.8':'+'}
@@ -126,14 +136,45 @@ class Pyramid:
   # 10b/c, 10c, 10+  -> 10c
   # 10c/d, 10d       -> 10d
 
-  def _grade_to_number(self, grade):
-    letter_map = {'a':'.0', 'b':'.25', 'c':'.5', 'd':'.75', '-':'.0', '+':'.8'}
-    if grade[-1].isnumeric() == False:
-      grade = grade[:-1] + letter_map[grade[-1]]
-      print(grade)
+  # def _grade_to_number(self, grade):   ################### Not used, maybe delete later
+  #   letter_map = {'a':'.0', 'b':'.25', 'c':'.5', 'd':'.75', '-':'.0', '+':'.8'}
+  #   if grade[-1].isnumeric() == False:
+  #     grade = grade[:-1] + letter_map[grade[-1]]
+  #     # print(grade)
+  #   else:
+  #     grade += '.4'
+  #     # print(grade)
+
+
+    # TODO: make "none" a default argument, if none, return all (boulder maybe in future)
+    # otherwise return sport, trad, etc. if 'sport' or 'trad' is included
+  def show_pyramids(self, requested_pyramid_styles=None, lead_styles=['Redpoint','Pinkpoint','Onsight']):  # self.style_options[0] grabs the first key of dictionary, could be sport, trad, etc. point is it won't be empty  #NEW
+    self.make_pyramid(pyramid_styles=requested_pyramid_styles, lead_styles=lead_styles)
+    if requested_pyramid_styles == None: #NEW
+      pyramid_styles = [list(self.style_options.keys())[0]] #NEW 
     else:
-      grade += '.4'
-      print(grade)
+      pyramid_styles = [p for p in requested_pyramid_styles if p in self.pyramids] # check for bad input (choosing sport and trad if only sport exists)
+    
+    all_pyramid_styles = [self.pyramids[p] for p in pyramid_styles]
+
+    top_pyramid = pd.concat([self.pyramids[p] for p in pyramid_styles], axis=0)
+    top_pyramid['count'] = pd.Series([1 for x in range(len(top_pyramid.index))], index=top_pyramid.index)
+
+    top_pyramid.grade = pd.Categorical(top_pyramid.grade, categories=self.grades_list, ordered=True)
+    
+    top_pyramid.sort_values('grade', ascending=False, inplace=True)
+    top_grades = top_pyramid.grade.unique()[:6] # get top 6 grades (arbitrary choice, can be an option later)
+    top_grades = top_grades.tolist()[::-1]
+    top_pyramid = top_pyramid[top_pyramid.grade.isin(top_grades)]
+
+    date = dt.now().strftime('%-d%b%Y')
+    self.title = f"{self.climber}<br>{'+'.join(pyramid_styles)} pyramid<br>{self.sub_location[-1]} -- {date}" 
+    fig = px.bar(top_pyramid, x="count", y="grade", orientation='h', hover_name='route', title=self.title )
+    
+    fig.layout.yaxis=dict(autorange="reversed")
+    fig.layout.yaxis.type = 'category' # ESSENTIAL! otherwise just the numeric (9,8,7, etc.) data get shown. Order matters too. This must happen AFTER reversing the range
+    #fig.show()
+    return fig 
 
 
   def yearly_progress(self):
@@ -167,10 +208,7 @@ class Pyramid:
     #new_labels = [self._grade_to_letter(self._x_round(float(label))) for label in old_labels]
     #ax.set_yticklabels(new_labels)
     #plt.show(); #TODO
-    ##########################################################################################################
     """
-    
-
     bottom, top = floor(min(avgs)), ceil(max(avgs))
     label_range = sorted(list(set([float(x_round(grade)) for grade in new_ropes if (bottom <= grade <= top)])))
     # print(label_range)
@@ -187,39 +225,12 @@ class Pyramid:
     fig2.show()
 
 
-    # TODO: make "none" a default argument, if none, return all (boulder maybe in future)
-    # otherwise return sport, trad, etc. if 'sport' or 'trad' is included
-    # TODO: some areas don't have a trad or sport pyramid, etc. do some try/except perhaps so there's no error (ex. me in Utah, I only have a trad pyramid, no sport s there's no "self.styles[1]")
-  def show_pyramids(self,pyramid_style='sport'):
-    self.style = self.styles[pyramid_style]
-    self.top_pyramid = self.pyramids[pyramid_style]
-    self.title = self.titles[pyramid_style]
-    #sb.barplot(y='grade', x='count', data=self.top_pyramid, color='green')
-    print('top pyramid')
-    print(self.top_pyramid)
-    fig = px.bar(self.top_pyramid, x="count", y="grade", orientation='h', title=self.title)
-    fig.layout.yaxis=dict(autorange="reversed")
-    fig.update_layout(xaxis_title="Grade", yaxis_title="Counts")
-    #fig.show()
-    #plt.title(self.title)
-    #plt.show()
-    print(self.top_pyramid)
-    print('\n\n\t\ttop 10')
-    print(self.style.sort_values('grade',ascending=False).head(10))
-    return fig # I think I want none because I just want to display pyramids for now. Else return self.pyramids
-
-
-  # TODO: run show_pyramid first to establish trad or sport pyramid or.... pull stuff out of show_pyramid first into __init__ 
-  # making show_pyramids into something smaller. REASON: show_pyramids has to be called before suggest_pyramid because it establishes
-  # what self.sport_pyramid and self.trad_pyramid are
-  def suggest_pyramid(self, pyramid_style='sport'):
-    if pyramid_style == 'sport':
-      self.pyramid = self.sport_pyramid
-    elif pyramid_style == 'trad':
-      self.pyramid = self.trad_pyramid
-    # else:
-    #   print('perform method "show_pyramid" first')
-    #   return None
+  def suggest_pyramid(self, requested_pyramid_style=None):  # self.style_options[0] grabs the first key of dictionary, could be sport, trad, etc. point is it won't be empty  #NEW
+    if requested_pyramid_style == None: #NEW
+      pyramid_style = list(self.style_options.keys())[0] #NEW
+    else:
+      pyramid_style = requested_pyramid_style
+    self.pyramid = self.pyramids[pyramid_style]
     self.scheme = [1,2,4,8,12] # may need to pass in later or set as "class global"
     
     self.top_index = self.grades_list.index(self.pyramid.grade[0]) + 1
@@ -262,3 +273,4 @@ class Pyramid:
     self.recommendations_df[self.recommendations_df.grade.isin(self.suggested_pyramid[self.suggested_pyramid.todo > 0].grade)] # remove grades within the suggested range that have been "overclimbed"
     # print(recommendations_df)
     return self.recommendations_df
+

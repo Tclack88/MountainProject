@@ -1,8 +1,15 @@
-# Climbing API -- pyramid
+# U.S. Power Plants predictions - featuring plotly and dash
 
-[See the dash app here](https://climbing-training-api.herokuapp.com/)
+[See the dash app here](https://us-power-plants.herokuapp.com)
 
+or
 
-![Climbing API preview](./assets/climbing_api_screenshot.png)
+Read about the code and insights gained [on my blog](https://tclack88.github.io/blog/code/2019/10/27/us-power-plants.html)
 
-Tracking your "climbing pyramid" is an easy way to determine if you have a strong foundation in the grades you climb and are ready to try the next grade. The problem with pyramids in general is that it can be very area dependent -- for example a 5.11a is likely much more difficult in Yosemite, CA than in Indian Creek, UT. This provides the opportunity to dynamically track your progress and set goals.
+![Current US power plants](https://github.com/Tclack88/blog/blob/gh-pages/assets/renewable/us-powerplants.png)
+
+The purpose of this project was to predict the power output of a new or hypothetically past power plant built in the U.S. by taking in relevant information like the fuel source, year built, location, etc.
+
+This is an fully interactive app and is much more fun to play with than read about
+
+![Interactive portion of u.s. power plants in "insights" tab ](https://github.com/Tclack88/Renewable-Energy/blob/master/us-power-dash-app/assets/dash_app.gif)

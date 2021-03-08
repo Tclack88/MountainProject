@@ -40,13 +40,13 @@ column1 = dbc.Col([
     
     html.Br(),
 
-    dcc.RadioItems(
+    dcc.Checklist(
         id='style',
         options=[
             {'label':'sport', 'value':'sport'},
             {'label':'trad', 'value':'trad'}
             ],
-        value='sport',
+        value=['sport','trad'],
         style={'display':'inline-block'}),
 
     html.Br(),
@@ -138,9 +138,6 @@ def make_pyramid(n_clicks,url,style,
             location_choices.append(location3)
         if location4:
             location_choices.append(location4)
-            print('we got a 4')
-        elif not location4:
-            print('no 4 :[')
         print(location_choices)
         document = str(url)
         P = Pyramid(document,location_choices)
