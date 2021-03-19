@@ -44,12 +44,30 @@ column1 = dbc.Col([
         id='style',
         options=[
             {'label':'sport', 'value':'sport'},
-            {'label':'trad', 'value':'trad'}
+            {'label':'trad\n', 'value':'trad'},
+            {'label':'boulder', 'value':'boulder'}
             ],
         value=['sport','trad'],
-        style={'display':'inline-block'}),
+        style={'display':'grid',"grid-template-columns": "repeat(2,1fr)",
+            'grid-row-gap': '10px', 'grid-column-gap': '0px'}),
 
     html.Br(),
+
+    dcc.Checklist(
+        id='lead_style',
+        options=[
+            {'label':'redpoint', 'value':'Redpoint'},
+            {'label':'onsight', 'value':'Onsight'},
+            {'label':'solo', 'value':'Solo'},
+            {'label':'flash', 'value':'Flash'},
+            {'label':'send', 'value':'Send'}
+            ],
+        value=['Redpoint','Onsight'],
+        style={'display':'grid',"grid-template-columns": "repeat(3,1fr)",
+            'grid-row-gap': '10px', 'grid-column-gap': '0px'}),
+
+    html.Br(),
+
 
     html.Div(
         [dcc.Dropdown(
@@ -119,12 +137,13 @@ layout = dbc.Row([column1,column2])
         [Input('submit','n_clicks'), # I think button click is fixed
          State('ticks-url', 'value'),
          State('style','value'),
+         State('lead_style','value'),
          State('location-dropdown-1','value'),
          State('location-dropdown-2','value'),
          State('location-dropdown-3','value'),
          State('location-dropdown-4','value')])
 
-def make_pyramid(n_clicks,url,style,
+def make_pyramid(n_clicks,url,style, lead_style,
         location1=None,location2=None,location3=None,location4=None):
     if url is None:
         raise PreventUpdate
@@ -141,7 +160,7 @@ def make_pyramid(n_clicks,url,style,
         print(location_choices)
         document = str(url)
         P = Pyramid(document,location_choices)
-        fig = P.show_pyramids(style)
+        fig = P.show_pyramids((style,lead_style))
         return fig
 
 # Populate dropdowns
