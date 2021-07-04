@@ -20,10 +20,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
-browser = webdriver.Chrome('/home/tclack/bin/chromedriver')
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("user-data-dir=/tmp/tarun")
+browser = webdriver.Chrome('/home/tclack/bin/chromedriver',
+        options=chrome_options)
 
 uname = 'PRIVATE'
-pw = "PRIVATE"
+pw = 'PRIVATE'
 
 login_url = "https://vlatka.vertical-life.info/auth/realms/Vertical-Life/protocol/openid-connect/auth?client_id=8a-nu&scope=openid%20email%20profile&response_type=code&redirect_uri=https%3A%2F%2Fwww.8a.nu%2Fcallback&resource=https%3A%2F%2Fwww.8a.nu&code_challenge=rUvyKm-0Lte3kUt9UsH5W5-1_KguDYgxawNvZDbNink&code_challenge_method=S256"
 
@@ -33,10 +36,25 @@ browser.get(login_url)
 browser.find_element_by_id('username').send_keys(uname)
 browser.find_element_by_id('password').send_keys(pw)
 browser.find_element_by_id('kc-login').click()
+cookies = browser.get_cookies()
 browser.get(url)
+for cookie in cookies:
+    browser.add_cookie(cookie)
+#save cookies
+#import pickle
+#pickle.dump(cookies, open('8acookies.cookie', 'wb'))
+#print('cookies saved')
 import time; time.sleep(3)
+browser.refresh()
+print('explore if it worked')
+time.sleep(45)
+table = ((browser.find_elements_by_class_name("main-table"))[0]).text
+print(table)
+with open('8anuoutput.html','w') as f:
+    f.write(table)
+
 browser.close()
-browser.click()
+#browser.click()
 import sys; sys.exit(0)
 
 
