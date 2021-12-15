@@ -19,7 +19,7 @@ def error_check(entry, expected=6): # expected is number of total rounds
         return True
     return False
 
-problems = df.applymap(lambda x: error_check(x,2))
+problems = df.applymap(lambda x: error_check(x,6))
 indices = problems.index.to_list()
 locations = [(indices[x], problems.columns[y]) for x,y in zip(*np.where(problems.values == True))] # get "coordinates" i.e. row, column where "True" exists
 
